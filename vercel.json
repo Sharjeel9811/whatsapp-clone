@@ -1,3 +1,4 @@
 {
-  "rootDirectory": "client"
+  "framework": null,
+  "outputDirectory": "client/dist"
 }
