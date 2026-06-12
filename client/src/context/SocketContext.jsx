@@ -43,8 +43,8 @@ export const SocketProvider = ({ children }) => {
 
     heartbeat();
     fetchOnline();
-    heartbeatRef.current = setInterval(heartbeat, 30000);
-    pollRef.current = setInterval(fetchOnline, 30000);
+    heartbeatRef.current = setInterval(heartbeat, 15000);
+    pollRef.current = setInterval(fetchOnline, 15000);
 
     return () => {
       newSocket.disconnect();

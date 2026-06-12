@@ -1,3 +1,5 @@
-import app from '../server.js';
+import { server } from '../server.js';
 
-export default app;
+export default function handler(req, res) {
+  server.emit('request', req, res);
+}

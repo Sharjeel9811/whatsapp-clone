@@ -63,14 +63,42 @@ const Chat = () => {
   useEffect(() => { fetchChats(); fetchFriends(); fetchFriendRequests(); fetchNotifications(); fetchBlockedUsers(); }, []);
 
   useEffect(() => {
+    if (!selectedChat) return;
+    const updated = chats.find((c) => c._id === selectedChat._id);
+    if (updated) setSelectedChat(updated);
+  }, [chats]);
+
+  useEffect(() => {
     const poll = setInterval(() => {
       fetchFriendRequests();
       fetchNotifications();
       fetchChats();
       fetchFriends();
-    }, 15000);
+    }, 10000);
     return () => clearInterval(poll);
   }, []);
+
+  useEffect(() => {
+    if (!selectedChat) return;
+    let initial = true;
+    const poll = setInterval(async () => {
+      try {
+        const { data } = await API.get(`/messages/${selectedChat._id}`);
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m._id));
+          const newMsgs = data.filter((m) => !existingIds.has(m._id));
+          if (newMsgs.length === 0) return prev;
+          if (!initial) {
+            const last = newMsgs[newMsgs.length - 1];
+            toast(`New message from ${last?.sender?.fullName || 'someone'}`, { icon: '💬', duration: 3000 });
+          }
+          return [...prev, ...newMsgs];
+        });
+        initial = false;
+      } catch {}
+    }, 4000);
+    return () => { clearInterval(poll); initial = true; };
+  }, [selectedChat]);
 
   useEffect(() => {
     if (!socket) return;
