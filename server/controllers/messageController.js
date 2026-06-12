@@ -6,7 +6,7 @@ import Notification from '../models/Notification.js';
 const sendMessage = async (req, res) => {
   try {
     const { chatId, content, replyTo } = req.body;
-    const file = req.file ? { url: `/uploads/${req.file.filename}`, type: req.file.mimetype, name: req.file.originalname } : null;
+    const file = req.file ? { url: `/api/uploads/${req.file.filename}`, type: req.file.mimetype, name: req.file.originalname } : null;
     if (!chatId || (!content && !file)) return res.status(400).json({ message: 'ChatId and content or file are required' });
     let messageObj = { sender: req.user._id, chat: chatId, readBy: [req.user._id], deliveredTo: [req.user._id] };
     if (content) messageObj.content = content;

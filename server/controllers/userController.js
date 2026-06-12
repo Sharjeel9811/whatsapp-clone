@@ -48,4 +48,11 @@ const getUserProfile = async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-export { searchUsers, blockUser, unblockUser, getBlockedUsers, getUserProfile };
+const heartbeat = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user._id, { isOnline: true, lastSeen: Date.now() });
+    res.json({ ok: true });
+  } catch { res.json({ ok: true }); }
+};
+
+export { searchUsers, blockUser, unblockUser, getBlockedUsers, getUserProfile, heartbeat };

@@ -63,6 +63,16 @@ const Chat = () => {
   useEffect(() => { fetchChats(); fetchFriends(); fetchFriendRequests(); fetchNotifications(); fetchBlockedUsers(); }, []);
 
   useEffect(() => {
+    const poll = setInterval(() => {
+      fetchFriendRequests();
+      fetchNotifications();
+      fetchChats();
+      fetchFriends();
+    }, 15000);
+    return () => clearInterval(poll);
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
 
     const onMsg = (m) => {
@@ -168,7 +178,7 @@ const Chat = () => {
       if (replyToId) body.replyTo = replyToId;
       const { data } = await API.post('/messages', body);
       setMessages((p) => [...p, data]);
-      socket.emit('new-message', data);
+      if (socket) socket.emit('new-message', data);
       fetchChats();
       setReplyToMsg(null);
     } catch {}
@@ -184,7 +194,7 @@ const Chat = () => {
       if (replyToId) fd.append('replyTo', replyToId);
       const { data } = await API.post('/messages', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setMessages((p) => [...p, data]);
-      socket.emit('new-message', data);
+      if (socket) socket.emit('new-message', data);
       fetchChats();
       setReplyToMsg(null);
     } catch (err) {

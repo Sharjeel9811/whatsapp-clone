@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import setupSocket from './socket/socketHandler.js';
@@ -13,6 +15,7 @@ import friendRoutes from './routes/friendRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import User from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +35,27 @@ app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const uploadDir = path.join(os.tmpdir(), 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+app.use('/api/uploads', express.static(uploadDir));
+
+let cachedDb = null;
+
+const connectDb = async () => {
+  if (cachedDb) return;
+  try {
+    await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
+    cachedDb = true;
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+  }
+};
+
+app.use(async (req, res, next) => {
+  if (!cachedDb) await connectDb();
+  next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/friends', friendRoutes);
@@ -41,26 +65,19 @@ app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
+app.get('/api/online', async (req, res) => {
+  try {
+    if (!cachedDb) await connectDb();
+    const threshold = new Date(Date.now() - 5 * 60 * 1000);
+    const online = await User.find({ isOnline: true, lastSeen: { $gte: threshold } }).select('_id lastSeen').lean();
+    res.json(online.map((u) => ({ userId: u._id, lastSeen: u.lastSeen })));
+  } catch (err) {
+    res.json([]);
+  }
+});
+
 setupSocket(io);
 app.set('io', io);
-
-let cachedDb = null;
-
-const connectDb = async () => {
-  if (cachedDb) return;
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    cachedDb = true;
-    console.log('MongoDB connected');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-  }
-};
-
-app.use(async (req, res, next) => {
-  await connectDb();
-  next();
-});
 
 const isVercel = process.env.VERCEL === '1';
 
