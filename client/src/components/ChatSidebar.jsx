@@ -208,7 +208,7 @@ const ChatSidebar = ({
   );
 
   return (
-    <Box sx={{ width: 400, minWidth: 400, bgcolor: bgColor, borderRight: '1px solid', borderColor, display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ width: { xs: '100%', md: 400 }, minWidth: { xs: '100%', md: 400 }, bgcolor: bgColor, borderRight: { xs: 'none', md: '1px solid' }, borderColor, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 2, bgcolor: headerBg }}>
         <TextField fullWidth size="small" placeholder="Search users..."
           value={searchQuery} onChange={(e) => handleSearch(e.target.value)}

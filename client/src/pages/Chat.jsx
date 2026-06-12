@@ -7,7 +7,7 @@ import API from '../utils/axios';
 import {
   Box, Avatar, Typography, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent,
   TextField, Button, Badge, List, ListItem, ListItemAvatar, ListItemText,
-  AppBar, Toolbar, Drawer,
+  AppBar, Toolbar, Drawer, useMediaQuery, useTheme,
 } from '@mui/material';
 import {
   Logout, Menu as MenuIcon, Chat as ChatIcon, Notifications, Check, PhotoCamera,
@@ -20,6 +20,9 @@ const Chat = () => {
   const { user, logout, updateUser } = useAuth();
   const { socket, onlineUsers } = useSocket();
   const { mode, toggleTheme } = useThemeMode();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(true);
 
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -333,25 +336,30 @@ const Chat = () => {
       </Menu>
 
       <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <ChatSidebar
-          chats={chats} selectedChat={selectedChat}
-          onSelectChat={(chat) => { setSelectedChat(chat); fetchMessages(chat._id); setReadChatIds((p) => new Set(p).add(chat._id)); }}
-          onAccessChat={accessChat} friends={friends} friendRequests={friendRequests}
-          onSendRequest={handleSendRequest} onAcceptRequest={handleAcceptRequest}
-          onRejectRequest={handleRejectRequest} onRemoveFriend={handleRemoveFriend}
-          onOpenGroup={() => setGroupDialog(true)} onlineUsers={onlineUsers} readChatIds={readChatIds}
-        />
+        <Box sx={{ display: isMobile ? (mobileOpen ? 'flex' : 'none') : 'flex', width: isMobile ? '100%' : 'auto', flex: isMobile ? 1 : 'unset' }}>
+          <ChatSidebar
+            chats={chats} selectedChat={selectedChat}
+            onSelectChat={(chat) => { setSelectedChat(chat); fetchMessages(chat._id); setReadChatIds((p) => new Set(p).add(chat._id)); if (isMobile) setMobileOpen(false); }}
+            onAccessChat={accessChat} friends={friends} friendRequests={friendRequests}
+            onSendRequest={handleSendRequest} onAcceptRequest={handleAcceptRequest}
+            onRejectRequest={handleRejectRequest} onRemoveFriend={handleRemoveFriend}
+            onOpenGroup={() => setGroupDialog(true)} onlineUsers={onlineUsers} readChatIds={readChatIds}
+          />
+        </Box>
 
         {selectedChat ? (
-          <ChatWindow chat={selectedChat} messages={messages} onSendMessage={sendMessage}
-            onSendFile={sendFileMessage} onDeleteMessage={deleteMessage} onReactToMessage={reactToMessage}
-            onEditMessage={editMessage} onCopyMessage={handleCopyMessage} onForwardMessage={handleOpenForward}
-            onAddToGroup={handleAddToGroup} onRemoveFromGroup={handleRemoveFromGroup}
-            onLeaveGroup={handleLeaveGroup} friends={friends} typing={typing} socket={socket}
-            onlineUsers={onlineUsers} onViewUserProfile={handleViewUserProfile}
-            replyToMsg={replyToMsg} setReplyToMsg={setReplyToMsg}
-            editMsg={editMsg} setEditMsg={setEditMsg}
-            msgInfo={msgInfo} setMsgInfo={setMsgInfo} />
+          <Box sx={{ display: isMobile ? (!mobileOpen ? 'flex' : 'none') : 'flex', flex: 1, width: '100%' }}>
+            <ChatWindow chat={selectedChat} messages={messages} onSendMessage={sendMessage}
+              onSendFile={sendFileMessage} onDeleteMessage={deleteMessage} onReactToMessage={reactToMessage}
+              onEditMessage={editMessage} onCopyMessage={handleCopyMessage} onForwardMessage={handleOpenForward}
+              onAddToGroup={handleAddToGroup} onRemoveFromGroup={handleRemoveFromGroup}
+              onLeaveGroup={handleLeaveGroup} friends={friends} typing={typing} socket={socket}
+              onlineUsers={onlineUsers} onViewUserProfile={handleViewUserProfile}
+              replyToMsg={replyToMsg} setReplyToMsg={setReplyToMsg}
+              editMsg={editMsg} setEditMsg={setEditMsg}
+              msgInfo={msgInfo} setMsgInfo={setMsgInfo}
+              onBack={() => setMobileOpen(true)} />
+          </Box>
         ) : (
           <Box sx={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',

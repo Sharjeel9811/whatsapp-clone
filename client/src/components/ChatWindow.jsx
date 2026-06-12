@@ -8,7 +8,7 @@ import {
 import {
   Send, Delete, MoreVert, PersonAdd, PersonRemove, ExitToApp, AttachFile, EmojiEmotions,
   Reply as ReplyIcon, ContentCopy, Edit as EditIcon, Info as InfoIcon, Forward as ForwardIcon,
-  Mic, MicOff, Check, CheckCircle, FiberManualRecord, Close,
+  Mic, MicOff, Check, CheckCircle, FiberManualRecord, Close, ArrowBack,
 } from '@mui/icons-material';
 
 const REACTIONS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
@@ -17,7 +17,7 @@ const ChatWindow = ({
   chat, messages, onSendMessage, onSendFile, onDeleteMessage, onReactToMessage,
   onEditMessage, onCopyMessage, onForwardMessage,
   onAddToGroup, onRemoveFromGroup, onLeaveGroup, friends, typing, socket, onlineUsers,
-  onViewUserProfile, replyToMsg, setReplyToMsg, editMsg, setEditMsg, msgInfo, setMsgInfo,
+  onViewUserProfile, replyToMsg, setReplyToMsg, editMsg, setEditMsg, msgInfo, setMsgInfo, onBack,
 }) => {
   const { user } = useAuth();
   const { mode } = useThemeMode();
@@ -250,8 +250,13 @@ const ChatWindow = ({
   const receivedTail = 'polygon(8% 0, 100% 0, 100% 100%, 0 100%, 0 8px)';
 
   return (
-    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', bgcolor: chatBg }}>
+    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', bgcolor: chatBg, minWidth: 0 }}>
       <Box sx={{ p: 1.5, px: 2, bgcolor: headerBg, display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor }}>
+        {onBack && (
+          <IconButton onClick={onBack} sx={{ mr: 0.5, display: { md: 'none' }, color: textColor }}>
+            <ArrowBack />
+          </IconButton>
+        )}
         <Badge overlap="circular" variant="dot" color={isOnline ? 'success' : 'default'}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
           <Avatar src={chatAvatar} sx={{ width: 40, height: 40, cursor: otherUser ? 'pointer' : 'default' }}
@@ -323,7 +328,7 @@ const ChatWindow = ({
       }}>
         {editMsg ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-            <Box sx={{ maxWidth: '65%', width: '100%' }}>
+            <Box sx={{ maxWidth: { xs: '85%', md: '65%' }, width: '100%' }}>
               <TextField fullWidth multiline maxRows={4} value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleEditSave(); } }}
@@ -375,7 +380,7 @@ const ChatWindow = ({
                   position: 'relative', animation: 'fadeIn 0.2s ease-out',
                 }}>
                   <Box sx={{
-                    maxWidth: '65%',
+                    maxWidth: { xs: '85%', md: '65%' },
                     bgcolor: own ? sentBg : receivedBg,
                     color: own ? '#e9edef' : textColor,
                     p: 1.5,
