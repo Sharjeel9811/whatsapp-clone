@@ -25,10 +25,7 @@ const server = http.createServer(app);
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(',');
 
 const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST'],
-  },
+  cors: { origin: allowedOrigins, methods: ['GET', 'POST'] },
 });
 
 app.use(cors({ origin: allowedOrigins }));
@@ -47,12 +44,30 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 setupSocket(io);
 app.set('io', io);
 
-const PORT = process.env.PORT || 5000;
+let cachedDb = null;
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
+const connectDb = async () => {
+  if (cachedDb) return;
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    cachedDb = true;
     console.log('MongoDB connected');
-    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => console.error('MongoDB connection error:', err));
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDb();
+  next();
+});
+
+const isVercel = process.env.VERCEL === '1';
+
+if (!isVercel) {
+  const PORT = process.env.PORT || 5000;
+  connectDb().then(() => server.listen(PORT, () => console.log(`Server running on port ${PORT}`)));
+}
+
+export default app;
+export { server, io };
