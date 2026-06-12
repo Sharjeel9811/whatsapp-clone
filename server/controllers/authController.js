@@ -1,5 +1,7 @@
+import fs from 'fs';
 import User from '../models/User.js';
 import Chat from '../models/Chat.js';
+import Upload from '../models/Upload.js';
 import generateToken from '../utils/generateToken.js';
 
 const register = async (req, res) => {
@@ -7,7 +9,12 @@ const register = async (req, res) => {
     const { fullName, username, email, password } = req.body;
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) return res.status(400).json({ message: 'User with this email or username already exists' });
-    const profilePic = req.file ? `/api/uploads/${req.file.filename}` : '';
+    let profilePic = '';
+    if (req.file) {
+      const data = fs.readFileSync(req.file.path);
+      const uploaded = await Upload.create({ data, mimetype: req.file.mimetype, filename: req.file.filename });
+      profilePic = `/api/file/${uploaded._id}`;
+    }
     const user = await User.create({ fullName, username, email, password, profilePic, isOnline: true, lastSeen: Date.now() });
     res.status(201).json({
       _id: user._id, fullName: user.fullName, username: user.username,
@@ -45,7 +52,11 @@ const updateProfile = async (req, res) => {
     const { fullName } = req.body;
     const user = await User.findById(req.user._id);
     if (fullName) user.fullName = fullName;
-    if (req.file) user.profilePic = `/api/uploads/${req.file.filename}`;
+    if (req.file) {
+      const data = fs.readFileSync(req.file.path);
+      const uploaded = await Upload.create({ data, mimetype: req.file.mimetype, filename: req.file.filename });
+      user.profilePic = `/api/file/${uploaded._id}`;
+    }
     await user.save();
     const chats = await Chat.find({ users: req.user._id }).select('users');
     const partnerIds = [...new Set(chats.flatMap((c) => c.users.map((u) => u.toString())).filter((id) => id !== req.user._id.toString()))];

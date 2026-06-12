@@ -1,12 +1,20 @@
+import fs from 'fs';
+import path from 'path';
 import Message from '../models/Message.js';
 import Chat from '../models/Chat.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import Upload from '../models/Upload.js';
 
 const sendMessage = async (req, res) => {
   try {
     const { chatId, content, replyTo } = req.body;
-    const file = req.file ? { url: `/api/uploads/${req.file.filename}`, type: req.file.mimetype, name: req.file.originalname } : null;
+    let file = null;
+    if (req.file) {
+      const data = fs.readFileSync(req.file.path);
+      const uploaded = await Upload.create({ data, mimetype: req.file.mimetype, filename: req.file.originalname });
+      file = { url: `/api/file/${uploaded._id}`, type: req.file.mimetype, name: req.file.originalname };
+    }
     if (!chatId || (!content && !file)) return res.status(400).json({ message: 'ChatId and content or file are required' });
     let messageObj = { sender: req.user._id, chat: chatId, readBy: [req.user._id], deliveredTo: [req.user._id] };
     if (content) messageObj.content = content;

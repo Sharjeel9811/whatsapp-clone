@@ -4,8 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
 import path from 'path';
-import fs from 'fs';
-import os from 'os';
 import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import setupSocket from './socket/socketHandler.js';
@@ -15,6 +13,7 @@ import friendRoutes from './routes/friendRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import User from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,15 +28,13 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http:
 
 const io = new Server(server, {
   cors: { origin: allowedOrigins, methods: ['GET', 'POST'] },
+  pingInterval: 5000,
+  pingTimeout: 4000,
 });
 
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-const uploadDir = path.join(os.tmpdir(), 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-app.use('/api/uploads', express.static(uploadDir));
 
 let cachedDb = null;
 
@@ -62,6 +59,7 @@ app.use('/api/friends', friendRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/file', uploadRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

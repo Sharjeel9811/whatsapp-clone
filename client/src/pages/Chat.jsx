@@ -96,7 +96,7 @@ const Chat = () => {
         });
         initial = false;
       } catch {}
-    }, 4000);
+    }, 2000);
     return () => { clearInterval(poll); initial = true; };
   }, [selectedChat]);
 
