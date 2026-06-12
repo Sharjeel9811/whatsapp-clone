@@ -10,6 +10,7 @@ import {
   Reply as ReplyIcon, ContentCopy, Edit as EditIcon, Info as InfoIcon, Forward as ForwardIcon,
   Mic, MicOff, Check, CheckCircle, FiberManualRecord, Close, ArrowBack,
 } from '@mui/icons-material';
+import { API_URL } from '../utils/config';
 
 const REACTIONS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
 
@@ -191,7 +192,7 @@ const ChatWindow = ({
       setPlayingAudio(null);
     } else {
       if (audioRef.current) audioRef.current.pause();
-      const audio = new Audio(`http://localhost:5000${url}`);
+      const audio = new Audio(`${API_URL}${url}`);
       audioRef.current = audio;
       audio.onended = () => setPlayingAudio(null);
       audio.play();
@@ -429,8 +430,8 @@ const ChatWindow = ({
                       </Box>
                     ) : msg.file ? (
                       msg.file.type.startsWith('image/') ? (
-                        <Box component="img" src={`http://localhost:5000${msg.file.url}`} alt={msg.file.name}
-                          onClick={() => setLightboxImg(`http://localhost:5000${msg.file.url}`)}
+                        <Box component="img" src={`${API_URL}${msg.file.url}`} alt={msg.file.name}
+                          onClick={() => setLightboxImg(`${API_URL}${msg.file.url}`)}
                           sx={{ maxWidth: '100%', maxHeight: 300, borderRadius: 1, display: 'block', cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.9 } }} />
                       ) : msg.file.type.startsWith('audio/') ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -443,7 +444,7 @@ const ChatWindow = ({
                       ) : (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: own ? '#e9edef' : textColor }}>
                           <AttachFile sx={{ fontSize: 20 }} />
-                          <Typography variant="body2" component="a" href={`http://localhost:5000${msg.file.url}`} target="_blank" rel="noopener"
+                          <Typography variant="body2" component="a" href={`${API_URL}${msg.file.url}`} target="_blank" rel="noopener"
                             sx={{ color: '#00a884', textDecoration: 'underline', fontSize: 13 }}>
                             {msg.file.name}
                           </Typography>
