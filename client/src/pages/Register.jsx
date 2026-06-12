@@ -35,7 +35,7 @@ const Register = () => {
       const formData = new FormData();
       Object.entries(form).forEach(([key, val]) => formData.append(key, val));
       if (profileFile) formData.append('profilePic', profileFile);
-      const { data } = await API.post('/auth/register', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await API.post('/auth/register', formData);
       localStorage.setItem('userInfo', JSON.stringify(data));
       navigate('/');
     } catch (err) {

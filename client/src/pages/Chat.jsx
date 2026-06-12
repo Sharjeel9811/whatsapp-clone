@@ -220,7 +220,7 @@ const Chat = () => {
       const fileName = file.name || (file.type?.startsWith('audio/') ? `voice-${Date.now()}.webm` : 'file');
       fd.append('file', file, fileName);
       if (replyToId) fd.append('replyTo', replyToId);
-      const { data } = await API.post('/messages', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await API.post('/messages', fd);
       setMessages((p) => [...p, data]);
       if (socket) socket.emit('new-message', data);
       fetchChats();
@@ -305,7 +305,7 @@ const Chat = () => {
   const handleUpdateProfile = async () => {
     try {
       const fd = new FormData(); fd.append('fullName', profileName); if (profileFile) fd.append('profilePic', profileFile);
-      const { data } = await API.put('/auth/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await API.put('/auth/profile', fd);
       updateUser({ ...user, fullName: profileName, profilePic: data.profilePic }); setProfileDialog(false);
       toast('Profile updated!', { icon: '✅' });
     } catch {}
