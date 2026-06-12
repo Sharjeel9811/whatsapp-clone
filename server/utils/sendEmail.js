@@ -1,17 +1,11 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const sendEmail = async ({ to, subject, text }) => {
-  // Always log to console
-  console.log(`\n========================================`);
-  console.log(`   📧 EMAIL NOTIFICATION`);
-  console.log(`----------------------------------------`);
-  console.log(`   To:      ${to}`);
-  console.log(`   Subject: ${subject}`);
-  console.log(`----------------------------------------`);
-  console.log(`   ${text}`);
-  console.log(`========================================\n`);
+  console.log('\n--- Email ---');
+  console.log('To:', to);
+  console.log('Subject:', subject);
+  console.log('Message:', text);
 
-  // Try Gmail SMTP if configured
   if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     try {
       const transporter = nodemailer.createTransport({
@@ -31,15 +25,14 @@ const sendEmail = async ({ to, subject, text }) => {
         text,
       });
 
-      console.log(`   ✅ Email sent successfully to ${to}`);
+      console.log('Email sent successfully to', to);
       return;
     } catch (err) {
-      console.log(`   ❌ SMTP failed: ${err.message}`);
-      console.log(`   ℹ️  Falling back to Ethereal...`);
+      console.log('SMTP failed:', err.message);
+      console.log('Falling back to Ethereal...');
     }
   }
 
-  // Fallback: Ethereal (usable for development - view in browser)
   try {
     const testAccount = await nodemailer.createTestAccount();
     const transporter = nodemailer.createTransport({
@@ -61,13 +54,13 @@ const sendEmail = async ({ to, subject, text }) => {
 
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) {
-      console.log(`   📬 Ethereal preview URL: ${previewUrl}`);
+      console.log('Ethereal preview URL:', previewUrl);
     }
-    console.log(`   ℹ️  Message ID: ${info.messageId}`);
+    console.log('Message ID:', info.messageId);
   } catch (err) {
-    console.log(`   ⚠️  Ethereal also failed: ${err.message}`);
-    console.log(`   ℹ️  Use the OTP shown on the verification page instead.`);
+    console.log('Ethereal also failed:', err.message);
+    console.log('Use the OTP shown on the verification page instead.');
   }
 };
 
-module.exports = sendEmail;
+export default sendEmail;

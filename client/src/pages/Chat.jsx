@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -46,7 +46,6 @@ const Chat = () => {
   const [forwardDialog, setForwardDialog] = useState(false);
   const [forwardMsg, setForwardMsg] = useState(null);
   const [msgInfo, setMsgInfo] = useState(null);
-  const toastShown = useRef({});
 
   const fetchChats = useCallback(async () => { try { const { data } = await API.get('/chats'); setChats(data); } catch {} }, []);
   const fetchFriends = useCallback(async () => { try { const { data } = await API.get('/friends'); setFriends(data); } catch {} }, []);
@@ -304,10 +303,6 @@ const Chat = () => {
 
   const handleOpenForward = (msg) => { setForwardMsg(msg); setForwardDialog(true); };
 
-  const handleForwardSubmit = (targetChatId) => {
-    if (forwardMsg) forwardMessage(forwardMsg._id, targetChatId);
-  };
-
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column',
       '& ::-webkit-scrollbar': { width: 6, height: 6 },
@@ -475,7 +470,7 @@ const Chat = () => {
               const name = c.isGroupChat ? c.chatName : c.users?.find((u) => u._id !== user._id)?.fullName || 'Unknown';
               const avatar = c.isGroupChat ? '' : c.users?.find((u) => u._id !== user._id)?.profilePic || '';
               return (
-                <ListItem key={c._id} button onClick={() => { handleForwardSubmit(c._id); }}
+                <ListItem key={c._id} button onClick={() => { if (forwardMsg) forwardMessage(forwardMsg._id, c._id); }}
                   sx={{ borderRadius: 2, mb: 0.5 }}>
                   <ListItemAvatar><Avatar src={avatar}>{!avatar && name[0]}</Avatar></ListItemAvatar>
                   <ListItemText primary={name} secondary={c.isGroupChat ? 'Group' : ''} />

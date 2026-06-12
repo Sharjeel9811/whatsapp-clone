@@ -52,16 +52,6 @@ const ChatWindow = ({
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { if (socket && chat) socket.emit('join-chat', chat._id); }, [socket, chat]);
 
-  useEffect(() => {
-    const el = msgContainerRef.current;
-    if (!el) return;
-    const handleScroll = () => {
-      if (el.scrollTop === 0) {}
-    };
-    el.addEventListener('scroll', handleScroll);
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const handleSend = () => {
     if (!message.trim() && !audioBlob) return;
     if (audioBlob) {

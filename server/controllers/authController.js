@@ -8,10 +8,7 @@ const register = async (req, res) => {
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) return res.status(400).json({ message: 'User with this email or username already exists' });
     const profilePic = req.file ? `/uploads/${req.file.filename}` : '';
-    const user = await User.create({ fullName, username, email, password, profilePic });
-    user.isOnline = true;
-    user.lastSeen = Date.now();
-    await user.save();
+    const user = await User.create({ fullName, username, email, password, profilePic, isOnline: true, lastSeen: Date.now() });
     res.status(201).json({
       _id: user._id, fullName: user.fullName, username: user.username,
       email: user.email, profilePic: user.profilePic, token: generateToken(user._id),
@@ -26,9 +23,7 @@ const login = async (req, res) => {
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
-    user.isOnline = true;
-    user.lastSeen = Date.now();
-    await user.save();
+    await User.findByIdAndUpdate(user._id, { isOnline: true, lastSeen: Date.now() });
     res.json({
       _id: user._id, fullName: user.fullName, username: user.username,
       email: user.email, profilePic: user.profilePic, token: generateToken(user._id),
@@ -38,9 +33,7 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    req.user.isOnline = false;
-    req.user.lastSeen = Date.now();
-    await req.user.save();
+    await User.findByIdAndUpdate(req.user._id, { isOnline: false, lastSeen: Date.now() });
     res.json({ message: 'Logged out successfully' });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
