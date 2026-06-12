@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Search, PersonAdd, GroupAdd, Check, Close, Person } from '@mui/icons-material';
 import API from '../utils/axios';
+import { fileUrl } from '../utils/config';
 
 const ChatSidebar = ({
   chats, selectedChat, onSelectChat, onAccessChat, friends, friendRequests,
@@ -90,7 +91,7 @@ const ChatSidebar = ({
             <ListItemAvatar>
               <Badge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 variant="dot" color={isFriendOnline(chat) ? 'success' : 'default'}>
-                <Avatar src={getChatAvatar(chat)} sx={{ width: 48, height: 48 }}>
+                <Avatar src={fileUrl(getChatAvatar(chat))} sx={{ width: 48, height: 48 }}>
                   {!getChatAvatar(chat) && (chat.isGroupChat ? <GroupAdd /> : <Person />)}
                 </Avatar>
               </Badge>
@@ -125,7 +126,7 @@ const ChatSidebar = ({
           <ListItemAvatar>
             <Badge overlap="circular" variant="dot" color={onlineUsers.includes(u._id) ? 'success' : 'default'}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-              <Avatar src={u.profilePic} sx={{ width: 48, height: 48 }} />
+              <Avatar src={fileUrl(u.profilePic)} sx={{ width: 48, height: 48 }} />
             </Badge>
           </ListItemAvatar>
           <ListItemText primary={u.fullName} secondary={`@${u.username}`}
@@ -162,7 +163,7 @@ const ChatSidebar = ({
           <ListItemAvatar>
             <Badge overlap="circular" variant="dot" color={onlineUsers.includes(f._id) ? 'success' : 'default'}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-              <Avatar src={f.profilePic} sx={{ width: 48, height: 48 }} />
+              <Avatar src={fileUrl(f.profilePic)} sx={{ width: 48, height: 48 }} />
             </Badge>
           </ListItemAvatar>
           <ListItemText primary={f.fullName} secondary={`@${f.username}`}
@@ -188,7 +189,7 @@ const ChatSidebar = ({
     ) : (
       friendRequests.map((r) => (
         <ListItem key={r._id} sx={{ py: 1.5, px: 2, '&:hover': { bgcolor: hoverBg }, borderBottom: '1px solid', borderColor }}>
-          <ListItemAvatar><Avatar src={r.sender?.profilePic} sx={{ width: 48, height: 48 }} /></ListItemAvatar>
+          <ListItemAvatar><Avatar src={fileUrl(r.sender?.profilePic)} sx={{ width: 48, height: 48 }} /></ListItemAvatar>
           <ListItemText primary={r.sender?.fullName} secondary={`@${r.sender?.username}`}
             primaryTypographyProps={{ color: textPrimary, fontWeight: 500 }}
             secondaryTypographyProps={{ color: textSecondary }} />

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { useThemeMode } from '../context/ThemeContext';
 import API from '../utils/axios';
+import { fileUrl } from '../utils/config';
 import {
   Box, Avatar, Typography, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent,
   TextField, Button, Badge, List, ListItem, ListItemAvatar, ListItemText,
@@ -355,7 +356,7 @@ const Chat = () => {
           <IconButton color="inherit" edge="start" onClick={(e) => setAnchorEl(e.currentTarget)}>
             <MenuIcon />
           </IconButton>
-          <Avatar src={user?.profilePic} sx={{ width: 36, height: 36, ml: 1 }} />
+          <Avatar src={fileUrl(user?.profilePic)} sx={{ width: 36, height: 36, ml: 1 }} />
           <Typography variant="h6" sx={{ flexGrow: 1, ml: 1.5, fontWeight: 500 }}>WhatsApp</Typography>
           <IconButton color="inherit" onClick={() => { fetchNotifications(); setNotifDrawer(true); }}>
             <Badge badgeContent={notifCount} color="error"><Notifications /></Badge>
@@ -368,7 +369,7 @@ const Chat = () => {
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
         <MenuItem onClick={() => { setAnchorEl(null); setProfileDialog(true); setProfileName(user?.fullName || ''); setProfilePreview(user?.profilePic || ''); setProfileFile(null); }}>
-          <Avatar src={user?.profilePic} sx={{ width: 28, height: 28, mr: 1.5 }} /> Profile
+          <Avatar src={fileUrl(user?.profilePic)} sx={{ width: 28, height: 28, mr: 1.5 }} /> Profile
         </MenuItem>
         <MenuItem onClick={handleLogout}><Logout sx={{ mr: 1.5 }} /> Logout</MenuItem>
       </Menu>
@@ -434,7 +435,7 @@ const Chat = () => {
         <DialogContent sx={{ textAlign: 'center', px: 4, pb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
             <label htmlFor="profile-upload-chat">
-              <Avatar src={profilePreview} sx={{ width: 100, height: 100, cursor: 'pointer', border: '3px solid', borderColor: 'divider' }} />
+              <Avatar src={profilePreview?.startsWith('blob:') ? profilePreview : fileUrl(profilePreview)} sx={{ width: 100, height: 100, cursor: 'pointer', border: '3px solid', borderColor: 'divider' }} />
               <PhotoCamera sx={{ position: 'relative', top: -32, left: 35, color: '#25D366', bgcolor: 'background.paper', borderRadius: '50%', p: 0.5, fontSize: 20 }} />
             </label>
             <input id="profile-upload-chat" type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files[0]; if (f) { setProfileFile(f); setProfilePreview(URL.createObjectURL(f)); } }} />
@@ -457,7 +458,7 @@ const Chat = () => {
             {friends.map((f) => (
               <ListItem key={f._id} sx={{ borderRadius: 2, mb: 0.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
                 onClick={() => setSelectedFriends((p) => p.includes(f._id) ? p.filter((id) => id !== f._id) : [...p, f._id])}>
-                <ListItemAvatar><Avatar src={f.profilePic} /></ListItemAvatar>
+                <ListItemAvatar><Avatar src={fileUrl(f.profilePic)} /></ListItemAvatar>
                 <ListItemText primary={f.fullName} secondary={`@${f.username}`} />
                 {selectedFriends.includes(f._id) && <Check sx={{ color: '#25D366' }} />}
               </ListItem>
@@ -493,7 +494,7 @@ const Chat = () => {
           <>
             <DialogTitle sx={{ pb: 0 }}>User Info</DialogTitle>
             <DialogContent sx={{ px: 4, pb: 3 }}>
-              <Avatar src={viewUserProfile.profilePic} sx={{ width: 100, height: 100, mx: 'auto', my: 2 }} />
+              <Avatar src={fileUrl(viewUserProfile.profilePic)} sx={{ width: 100, height: 100, mx: 'auto', my: 2 }} />
               <Typography variant="h6">{viewUserProfile.fullName}</Typography>
               <Typography variant="body2" color="text.secondary">@{viewUserProfile.username}</Typography>
               {viewUserProfile.isBlocked ? (

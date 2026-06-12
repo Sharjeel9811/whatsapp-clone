@@ -10,7 +10,7 @@ import {
   Reply as ReplyIcon, ContentCopy, Edit as EditIcon, Info as InfoIcon, Forward as ForwardIcon,
   Mic, MicOff, Check, CheckCircle, FiberManualRecord, Close, ArrowBack,
 } from '@mui/icons-material';
-import { API_URL } from '../utils/config';
+import { API_URL, fileUrl } from '../utils/config';
 
 const REACTIONS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
 
@@ -260,7 +260,7 @@ const ChatWindow = ({
         )}
         <Badge overlap="circular" variant="dot" color={isOnline ? 'success' : 'default'}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-          <Avatar src={chatAvatar} sx={{ width: 40, height: 40, cursor: otherUser ? 'pointer' : 'default' }}
+          <Avatar src={fileUrl(chatAvatar)} sx={{ width: 40, height: 40, cursor: otherUser ? 'pointer' : 'default' }}
             onClick={() => { if (otherUser) onViewUserProfile?.(otherUser._id); }}>
             {!chatAvatar && (isGroup ? chatName[0]?.toUpperCase() : '')}
           </Avatar>
@@ -302,7 +302,7 @@ const ChatWindow = ({
           )}
           {otherUser && (
             <MenuItem onClick={() => { setAnchorEl(null); onViewUserProfile?.(otherUser._id); }}>
-              <Avatar src={otherUser.profilePic} sx={{ width: 24, height: 24, mr: 1.5 }} /> View Profile
+              <Avatar src={fileUrl(otherUser.profilePic)} sx={{ width: 24, height: 24, mr: 1.5 }} /> View Profile
             </MenuItem>
           )}
         </Menu>
@@ -662,7 +662,7 @@ const ChatWindow = ({
               nonMemberFriends.map((f) => (
                 <ListItem key={f._id} button onClick={() => { onAddToGroup(chat._id, f._id); setAddMemberDialog(false); }}
                   sx={{ borderRadius: 2, mb: 0.5 }}>
-                  <ListItemAvatar><Avatar src={f.profilePic} /></ListItemAvatar>
+                  <ListItemAvatar><Avatar src={fileUrl(f.profilePic)} /></ListItemAvatar>
                   <ListItemText primary={f.fullName} secondary={`@${f.username}`} />
                 </ListItem>
               ))
