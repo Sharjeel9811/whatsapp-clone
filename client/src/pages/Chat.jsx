@@ -18,7 +18,7 @@ import ChatWindow from '../components/ChatWindow';
 
 const Chat = () => {
   const { user, logout, updateUser } = useAuth();
-  const { socket, onlineUsers } = useSocket();
+  const { socket, onlineUsers, onlineMap } = useSocket();
   const { mode, toggleTheme } = useThemeMode();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -392,7 +392,7 @@ const Chat = () => {
               onEditMessage={editMessage} onCopyMessage={handleCopyMessage} onForwardMessage={handleOpenForward}
               onAddToGroup={handleAddToGroup} onRemoveFromGroup={handleRemoveFromGroup}
               onLeaveGroup={handleLeaveGroup} friends={friends} typing={typing} socket={socket}
-              onlineUsers={onlineUsers} onViewUserProfile={handleViewUserProfile}
+              onlineUsers={onlineUsers} onlineMap={onlineMap} onViewUserProfile={handleViewUserProfile}
               replyToMsg={replyToMsg} setReplyToMsg={setReplyToMsg}
               editMsg={editMsg} setEditMsg={setEditMsg}
               msgInfo={msgInfo} setMsgInfo={setMsgInfo}

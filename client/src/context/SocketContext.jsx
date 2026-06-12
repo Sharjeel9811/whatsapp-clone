@@ -11,6 +11,7 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [onlineMap, setOnlineMap] = useState({});
   const { user } = useAuth();
   const heartbeatRef = useRef(null);
   const pollRef = useRef(null);
@@ -32,8 +33,14 @@ export const SocketProvider = ({ children }) => {
     const fetchOnline = async () => {
       try {
         const { data } = await API.get('/online');
-        const ids = data.filter((u) => u.userId !== user._id).map((u) => u.userId);
+        const map = {};
+        const ids = data.filter((u) => {
+          if (u.userId === user._id) return false;
+          map[u.userId] = u.lastSeen;
+          return true;
+        }).map((u) => u.userId);
         setOnlineUsers(ids);
+        setOnlineMap(map);
       } catch {}
     };
 
@@ -54,7 +61,7 @@ export const SocketProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <SocketContext.Provider value={{ socket, onlineUsers }}>
+    <SocketContext.Provider value={{ socket, onlineUsers, onlineMap }}>
       {children}
     </SocketContext.Provider>
   );

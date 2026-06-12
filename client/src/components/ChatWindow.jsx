@@ -17,7 +17,7 @@ const REACTIONS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
 const ChatWindow = ({
   chat, messages, onSendMessage, onSendFile, onDeleteMessage, onReactToMessage,
   onEditMessage, onCopyMessage, onForwardMessage,
-  onAddToGroup, onRemoveFromGroup, onLeaveGroup, friends, typing, socket, onlineUsers,
+  onAddToGroup, onRemoveFromGroup, onLeaveGroup, friends, typing, socket, onlineUsers, onlineMap,
   onViewUserProfile, replyToMsg, setReplyToMsg, editMsg, setEditMsg, msgInfo, setMsgInfo, onBack,
 }) => {
   const { user } = useAuth();
@@ -277,7 +277,7 @@ const ChatWindow = ({
               </Box>
             ) : isGroup ? (
               `${groupMembers.length} members${(() => { const n = groupMembers.filter((m) => onlineUsers.includes(m._id)).length; return n > 0 ? `, ${n} online` : ''; })()}`
-            ) : isOnline ? 'online' : otherUser?.lastSeen ? formatLastSeen(otherUser.lastSeen) : 'offline'}
+            ) : isOnline ? 'online' : formatLastSeen(onlineMap[otherUser?._id] || otherUser?.lastSeen)}
           </Typography>
         </Box>
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ color: '#8696a0' }}>
